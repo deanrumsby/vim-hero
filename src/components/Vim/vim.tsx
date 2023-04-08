@@ -11,6 +11,7 @@ interface VimProps {
     clipboard?: boolean;
     onVimExit?: (status: number) => void;
     onVimInit?: () => void;
+    onKeyPress?: (keyCode: string) => void;
     onFileExport?: (fullpath: string, contents: ArrayBuffer) => void;
     readClipboard?: () => Promise<string>;
     onWriteClipboard?: (text: string) => Promise<void>;
@@ -128,18 +129,20 @@ const INPUT_STYLE = {
     padding: '0px',
     border: '0px',
     outline: 'none',
-    position: 'relative',
     top: '0px',
     left: '0px',
 };
 
 export const Vim = (props: VimProps) => {
     const [canvasRef, inputRef, vim] = useVim(props);
+    const [userInput, setUserInput] = useState("");
+
     if (canvasRef === null || inputRef === null) {
         // When drawer prop is set, it has responsibility to render screen.
         // This component does not render screen and handle inputs.
         return null;
     }
+
     const { style, className, id, onVimExit, onVimInit, onFileExport, onWriteClipboard, onError, readClipboard, } = props;
     if (vim !== null) {
         vim.onVimExit = onVimExit;
@@ -149,8 +152,10 @@ export const Vim = (props: VimProps) => {
         vim.onError = onError;
         vim.readClipboard = readClipboard;
     }
-    return (React.createElement(React.Fragment, null,
-        React.createElement("canvas", { ref: canvasRef, style: style, className: className, id: id }),
-        React.createElement("input", { ref: inputRef, style: INPUT_STYLE, autoComplete: "off", autoFocus: true })));
+    return (
+    <>
+        <canvas ref={canvasRef} style={style} className={className} id={id} />
+        <input ref={inputRef} style={INPUT_STYLE} autoComplete="off" autoFocus={true} />
+    </>
+    );
 };
-	
