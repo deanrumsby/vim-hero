@@ -1,11 +1,9 @@
 import Head from 'next/head';
+import { useRef } from 'react';
 import { Vim } from '@/components/Vim';
 
 export default function Home() {
-  const onFileExport = (str: string, buf: ArrayBuffer) => {
-    console.log('str', str);
-    console.log('buf', buf);
-  };
+  const keyStrokes = useRef<KeyboardEvent[]>([]);
 
   return (
     <>
@@ -21,9 +19,11 @@ export default function Home() {
             width: '800px',
           }}
           worker="/vim-wasm/vim.js"
-          files={{
-            "vim-hero": "hello",
+          onKeyDown={(e) => {
+            keyStrokes.current.push(e);
+            console.log(keyStrokes.current);
           }}
+          onVimExit={() => console.log('exit')}
           />
       </main>
     </>

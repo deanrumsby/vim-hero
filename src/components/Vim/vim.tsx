@@ -11,7 +11,7 @@ interface VimProps {
     clipboard?: boolean;
     onVimExit?: (status: number) => void;
     onVimInit?: () => void;
-    onKeyPress?: (keyCode: string) => void;
+    onKeyDown?: (event: KeyboardEvent) => void; 
     onFileExport?: (fullpath: string, contents: ArrayBuffer) => void;
     readClipboard?: () => Promise<string>;
     onWriteClipboard?: (text: string) => Promise<void>;
@@ -40,6 +40,7 @@ function useVim({
 	clipboard,
 	onVimExit,
 	onVimInit,
+	onKeyDown,
 	onFileExport,
 	readClipboard,
 	onWriteClipboard,
@@ -80,6 +81,11 @@ function useVim({
 				screen: drawer,
 			}
 		}
+
+		if (input.current !== null) {
+		    input.current.addEventListener('keydown', onKeyDown ?? (() => {}), { capture: true });
+		}
+
 		const v = new VimWasm(opts);
 		v.onVimInit = onVimInit;
 		v.onVimExit = onVimExit;
@@ -136,14 +142,25 @@ const INPUT_STYLE = {
 export const Vim = (props: VimProps) => {
     const [canvasRef, inputRef, vim] = useVim(props);
     const [userInput, setUserInput] = useState("");
-
+    
     if (canvasRef === null || inputRef === null) {
         // When drawer prop is set, it has responsibility to render screen.
         // This component does not render screen and handle inputs.
         return null;
     }
 
-    const { style, className, id, onVimExit, onVimInit, onFileExport, onWriteClipboard, onError, readClipboard, } = props;
+    const { 
+	style,
+	className,
+	id,
+	onVimExit,
+	onVimInit,
+	onFileExport,
+	onWriteClipboard,
+	onError,
+	readClipboard,
+    } = props;
+
     if (vim !== null) {
         vim.onVimExit = onVimExit;
         vim.onVimInit = onVimInit;
